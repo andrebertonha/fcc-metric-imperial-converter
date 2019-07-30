@@ -16,29 +16,20 @@ module.exports = function (app) {
   var convertHandler = new ConvertHandler();
 
   app.route('/api/convert')
-    .get(function (req, res){
-    
-      var input = req.query.input;
-      var initNum = convertHandler.getNum(input);
+    .get(function (req, res){    
+      var input = req.query.input;    
+      var initNum = convertHandler.getNum(input);    
       var initUnit = convertHandler.getUnit(input);
+        
+      if(initNum === 'invalid number' && initUnit === 'invalid unit') return res.status(200).send('invalid number and unit')
+      if(initNum === 'invalid number') return res.status(200).send('invalid number')
+      if(initUnit === 'invalid unit') return res.status(200).send('invalid unit')
+    
       var returnNum = convertHandler.convert(initNum, initUnit);
       var returnUnit = convertHandler.getReturnUnit(initUnit);
-      var toString = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);
+      var toString = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);      
       
-      if(initUnit === 'invalid unit' && initNum === 'invalid num') {
-        res.send('invalid number and unit')
-      }
-    
-      if(initUnit === 'invalid unit' && initNum === 'invalid number'){
-        res.send('invalid number and unit');
-      } else if(initUnit === 'invalid unit'){
-        res.send('invalid unit');
-      } else if(initNum === 'invalid number'){
-        res.send('invalid number')
-      }
-      
-      //res.json
-    
+      //res.json    
       res.json({
         "initNum": initNum,
         "initUnit": initUnit,

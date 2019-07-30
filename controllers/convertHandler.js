@@ -10,76 +10,135 @@ function ConvertHandler() {
   
   this.getNum = function(input) {
     
-    let unit = input.match(/[a-zA-Z]+/)[0]
-    let result = unit.split(unit)[0]
-    let matchSlash = Boolean(result.match(/[/]/))
+    var result;
+    const firstLetter = /[a-z]/i
+    result = input.slice(0, input.indexOf(firstLetter.exec(input)))
     
-    if(unit === result) {
-      return 1
-    }
-    
-    if(matchSlash) {
-      let firstNumber = result.split('/')[0]
-      let secondNumber = result.split('/')[1]
-      
-      if(result.split('/')[2]) {
-        return 'invalid number'
-      }
-      
-      if(firstNumber.length === 0 || secondNumber.length === 0) {
-         return 'invalid number'
-      } else {
-        return (Number(firstNumber) / Number(secondNumber))
+    try{
+      eval(result)
+    } catch(e) {
+      if(e instanceof SyntaxError) {
+        return result = 'invalid number'
       }
     }
     
-    return Number(result);   
+    if (/[/](.*)([/])/g.test(result)) return result = 'invalid number'; 
+    result = result.replace(',', '.')
+    return result !== '' ? eval(result) : 1
     
   };
   
   this.getUnit = function(input) {
     
-    let listedUnits = ['gal','l','mi','km','lbs','kg']
-    let unit = input.match(/[a-zA-Z]+/)[0].toLowerCase()
-    
-    let isValidUnit = listedUnits.some(item => {
-      return item === unit
-    })
+    var result;
+    const firstLetter = /[a-z]/i
+    result = input.slice(input.indexOf(firstLetter.exec(input)))
+    return /^gal$|^l$|^lbs$|^kg$|^mi$|^km$/i.test(result) ? result: 'invalid unit';
     
   };
   
   this.getReturnUnit = function(initUnit) {
-    var input = ['gal','l','mi','km','lbs','kg']
-    var expect = ['l','gal','km','mi','kg','lbs']    
-    return expect[input.indexOf(initUnit)]
+    var result;
+    initUnit = initUnit.toLowerCase()
+    switch (initUnit) {
+      case "gal":
+        result = "L"
+        break
+      case "l":
+        result = "gal"
+        break
+      case "lbs":
+        result = "kg"
+        break
+      case "kg":
+        result = "lbs"
+        break
+      case "mi":
+        result = "km"
+        break
+      case "km":
+        result = "mi"
+        break
+      default:
+        result =  'invalid unit'
+        break
+    }
+    return result;
   };
 
   this.spellOutUnit = function(unit) {
-    var input = ['gal','l','mi','km','lbs','kg']
-    var expect = ['gallons','liters','miles','kilometers','pounds','kilograms']    
-    return expect[input.indexOf(unit)]
+    var result;
+    unit = unit.toLowerCase()
+    switch (unit) {
+      case "gal":
+        result = 'gallons'
+        break
+      case "l":
+        result = 'liters'
+        break
+      case "lbs":
+        result = 'pounds'
+        break
+      case "kg":
+        result = 'kilograms'
+        break
+      case "mi":
+        result = 'miles'
+        break
+      case "km":
+        result = 'kilometers'
+        break
+      default:
+        result =  'units'
+        break
+    }
+    return result;
   };
   
   this.convert = function(initNum, initUnit) {
     const galToL = 3.78541;
     const lbsToKg = 0.453592;
     const miToKm = 1.60934;
-    const kgToLbs = 2.20462;
-    const lToGal = 0.26417;
-    const kmToMi = 0.62137;
+    var result;
+    initUnit = initUnit.toLowerCase()
+    switch (initUnit) {
+      case "gal":
+        result = initNum * galToL;
+        break
+      case "l":
+        result = initNum / galToL
+        break
+      case "lbs":
+        result = initNum * lbsToKg
+        break
+      case "kg":
+        result = initNum / lbsToKg
+        break
+      case "mi":
+        result = initNum * miToKm
+        break
+      case "km":
+        result = initNum / miToKm
+        break
+      default:
+        result =  'invalid number'
+        break
+    }
     
-    var input = ['gal','l','mi','km','lbs','kg'];
-    var convert = [galToL,lToGal,miToKm,kmToMi,lbsToKg,kgToLbs];
-    
-    return initNum*convert[input.indexOf(initUnit)];
+    return result;
   };
   
   this.getString = function(initNum, initUnit, returnNum, returnUnit) {
-    let initUnitFull   = this.spellOutUnit(initUnit);
-    let returnUnitFull = this.spellOutUnit(returnUnit);
+    function roundToFive(num) {    
+      return +(Math.round(num + "e+5")  + "e-5");
+    }
+  
+    var result;
     
-    return `${initNum} ${initUnitFull} converts to ${returnNum} ${returnUnitFull}`;
-  }.bind(this);
+    result = `${roundToFive(initNum)} ${this.spellOutUnit(initUnit)} converts to ${roundToFive(returnNum)} ${this.spellOutUnit(returnUnit)}`;
+    
+    return result;
+  }
   
 }
 
